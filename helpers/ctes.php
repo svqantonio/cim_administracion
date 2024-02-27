@@ -11,3 +11,8 @@
     );
 
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password, $options);
+
+    $files = [
+        'index' => 'index.php',
+        'main' => 'main.php',  
+    ];

@@ -6,7 +6,7 @@
             global $conn;
 
             $password = md5($password);
-            $stmt = $conn->prepare("SELECT user, password FROM usuarios WHERE user = :user AND password = :password;");
+            $stmt = $conn->prepare("SELECT username, password FROM users WHERE username = :user AND password = :password;");
             $stmt->bindParam(':user', $user);
             $stmt->bindParam(':password', $password);
             $stmt->execute();

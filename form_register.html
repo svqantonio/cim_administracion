@@ -2,10 +2,8 @@
 <html lang="es">
 
 <head>
-    <?php
-    include 'header.php';
-    ?>
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="css/index.css">
+    <script src="helpers/header.js"></script>
 </head>
 
 <body>
@@ -38,6 +36,7 @@
 
             Swal.fire({
                 title: "¿Los datos son correctos?",
+                text: "Usuario: " + user + " -- Contraseña: " + password,
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
@@ -50,15 +49,31 @@
                     xhr.open("POST", "register.php", true);
                     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                     xhr.onreadystatechange = function() {
+                        //No me hace falta ponerlo asi JSON.parse(xhr.responseText); -> Porque desde la peticion xhr no lo paso como json
+                        var response = JSON.parse(xhr.responseText);
                         if (xhr.readyState === 4 && xhr.status === 200) {
-                            // Aquí puedes manejar la respuesta del servidor si es necesario
                             Swal.fire({
-                                title: "¡Registrado!",
-                                text: "El usuario ha sido registrado correctamente.",
+                                position: "center",
+                                title: response.message,
                                 icon: "success",
-
+                                showConfirmButton: false,
+                                timer: 2000
                             });
-                        }
+                            localStorage.setItem('token', response.token);
+                            setTimeout(function() {
+                                window.location.href = 'administration_index.html';
+                            }, 2000);
+                        } else {
+                            Swal.fire({
+                                position: "center",
+                                title: response.message,
+                                icon: "error",
+                                showConfirmButton: false,
+                                timer: 2000
+                            });
+                            localStorage.setItem('token', response.token);
+                            window.history.back();
+                    }
                     };
                     xhr.send("user=" + user + "&password=" + password);
                 }
