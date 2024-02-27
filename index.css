@@ -1,0 +1,126 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: 'Courier', sans-serif;
+}
+
+.formulario {
+    text-align: left;
+}
+
+.formulario img {
+    display: block; /* Para asegurarse de que la imagen no cause espacios no deseados */
+    margin: 0 auto; /* Centra la imagen horizontalmente */
+}
+
+.formulario form {
+    margin-top: 20px; /* Espacio entre la imagen y el formulario */
+}
+
+.formulario .form-label {
+    display: block; /* Muestra las etiquetas en una línea separada */
+    margin-top: 10px; /* Espacio entre las etiquetas y los campos de entrada */
+}
+
+.formulario .form-control {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 0;
+}
+
+.formulario #login {
+    width: 100%;
+}
+
+/* Estilo boton Acceder */
+.btnLogin {
+    margin: 0;
+    height: auto;
+    background: transparent;
+    padding: 0;
+    border: none;
+}
+
+/* button styling */
+.btnLogin {
+    --border-right: 6px;
+    --text-stroke-color: black;
+    --animation-color: #01005d;
+    --fs-size: 2em;
+    letter-spacing: 3px;
+    text-decoration: none;
+    font-size: var(--fs-size);
+    font-family: "Arial";
+    position: relative;
+    text-transform: uppercase;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--text-stroke-color);
+}
+/* this is the text, when you hover on button */
+.hover-text {
+    position: absolute;
+    box-sizing: border-box;
+    content: attr(data-text);
+    color: var(--animation-color);
+    width: 0%;
+    inset: 0;
+    border-right: var(--border-right) solid var(--animation-color);
+    overflow: hidden;
+    transition: 0.5s;
+    -webkit-text-stroke: 1px var(--animation-color);
+}
+/* hover */
+.btnLogin:hover .hover-text {
+    width: 100%;
+    filter: drop-shadow(0 0 23px var(--animation-color))
+}
+
+/* Estilo inputs */
+.form-control {
+    position: relative;
+    margin: 20px 0 40px;
+    width: 190px;
+    border: 0;
+}
+
+.form-control input {
+    background-color: transparent;
+    border: 0;
+    border-bottom: 2px black solid;
+    display: block;
+    width: 100%;
+    padding: 15px 0;
+    font-size: 18px;
+    color: black;
+}
+
+.form-control input:focus,
+.form-control input:valid {
+    outline: 0;
+    border-bottom-color: black;
+}
+
+.form-control label {
+    position: absolute;
+    top: 15px;
+    left: 0;
+    pointer-events: none;
+}
+
+.form-control label span {
+    display: inline-block;
+    font-size: 18px;
+    min-width: 5px;
+    color: black;
+    transition: 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.form-control input:focus+label span,
+.form-control input:valid+label span {
+    color: black;
+    transform: translateY(-30px);
+}
