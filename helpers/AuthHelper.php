@@ -4,26 +4,39 @@
 
         public static function login($user, $password) {
             global $conn;
-
+            $random = random_bytes(32);
+            $token = bin2hex($random);
             $password = md5($password);
-            $stmt = $conn->prepare("SELECT username, password FROM users WHERE username = :user AND password = :password;");
+            $stmt = $conn->prepare("SELECT id, username, password FROM users WHERE username = :user AND password = :password;");
             $stmt->bindParam(':user', $user);
             $stmt->bindParam(':password', $password);
             $stmt->execute();
+            $result = $stmt->fetch();
 
-            $result = $stmt->fetchAll();
+            if ($result) {
+                $user_id = $result['id'];
+                $expiration_time = date('Y-m-d H:i:s', strtotime('+1 hour'));
+                $stmt = $conn->prepare("INSERT INTO tokens SET token = :token, user_id = :user_id, token_expiration = :token_expiration");
+                $stmt->bindParam(':token', $token);
+                $stmt->bindParam(':user_id', $user_id);
+                $stmt->bindParam(':token_expiration', $expiration_time);
 
-            if (count($result) > 0) 
-                return [
-                    "status" => true,
-                    "message" => "Logueado correctamente"
-
-                ]; 
-            else 
-                return [
-                    "status" => false,
-                    "message" => "Error al loguearte"
-                ];
+                if ($stmt->execute()) {
+                    return [
+                        "status" => "success",
+                        "message" => "Usuario logueado correctamente",
+                        "token" => $token,
+                        "redirection" => "index.html"
+                    ];
+                } else {
+                    return [
+                        "status" => "error",
+                        "message" => "Error al loguear user",
+                        "token" => null,
+                        "redirection" => "login.html"
+                    ];
+                }
+            }
         }
 
         public static function register($user, $password) {
@@ -38,29 +51,61 @@
             $stmt->bindParam(':password', $password);
             if ($stmt->execute()) {
                 $user_id = $conn->lastInsertId();
-                $stmt = $conn->prepare("INSERT INTO tokens SET token = :token, user_id = :user_id;");
+                $expiration_time = date('Y-m-d H:i:s', strtotime('+1 hour')); // Sumar una hora al tiempo actual
+                $stmt = $conn->prepare("INSERT INTO tokens SET token = :token, user_id = :user_id, token_expiration = :token_expiration");
                 $stmt->bindParam(':token', $token);
                 $stmt->bindParam(':user_id', $user_id);
+                $stmt->bindParam(':token_expiration', $expiration_time);
 
                 if ($stmt->execute()) {
                     return [
-                        "status" => true,
+                        "status" => "success",
                         "message" => "Usuario insertado correctamente",
                         "token" => $token,
+                        "redirection" => "index.html"
                     ];
                 } else {
                     return [
-                        "status" => false,
+                        "status" => "error",
                         "message" => "Error al insertar token",
-                        "token" => null
+                        "token" => null,
+                        "redirection" => "login.html"
                     ];
                 }
             } else {
                 return [
                     "status" => false,
                     "message" => "Error al insertar usuario: " . $stmt->errorInfo()[2],
-                    "token" => null
+                    "token" => null,
                 ];
             } 
+        }
+
+        public static function logued($token) {
+            global $conn;
+
+            $stmt = $conn->prepare("SELECT token, token_expiration FROM tokens WHERE token = :token;");
+            $stmt->bindParam(':token', $token);
+            $stmt->execute();
+            $result = $stmt->fetchAll(); 
+
+            if (count($result) > 0)
+                return true;
+            else 
+                return false;
+        }
+
+        public static function checkTokenExpiration($token) {
+            global $conn;
+
+            $stmt = $conn->prepare("SELECT token_expiration FROM tokens WHERE token = :token;");
+            $stmt->bindParam(':token', $token);
+            $stmt->execute();
+            $result = $stmt->fetch();
+
+            if (!$result)
+                return true;
+            else 
+                return true;
         }
     }
