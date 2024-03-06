@@ -1,1 +1,77 @@
-<p>Estoy dentro!</p>
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <script src="helpers/header.js"></script>
+        <script src="redirect.js"></script>
+          
+        <style>
+            .centrar {
+                display: flex; 
+                flex-direction: column;
+                justify-content: center; 
+                align-items: center;
+                margin-top: 2%;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="centrar">
+            <button class="btn btn-danger" onclick="confirmarLogout()">Cerrar sesión</button>
+            <script>
+                function confirmarLogout() {
+                    var token = localStorage.getItem('token');
+                    Swal.fire({
+                        title: '¿Estás seguro de que quieres cerrar sesión?',
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#3085d6",
+                        cancelButtonColor: "#d33",
+                        confirmButtonText: "Cerrar sesión",
+                        cancelButtonText: "Cancelar",
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                var xhr = new XMLHttpRequest();
+                                xhr.open("POST", "logout.php", true);
+                                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                                xhr.onreadystatechange = function() {
+                                    if (xhr.readyState === 4) {
+                                        var response = JSON.parse(xhr.responseText);
+                                        console.log(response);
+                                        Swal.fire({
+                                            position: "center",
+                                            title: response.message,
+                                            icon: response.status,
+                                            showConfirmButton: false,
+                                            timer: response.timer
+                                        });
+                                        if (xhr.status === 200) 
+                                            localStorage.removeItem('token');
+
+                                        setTimeout(function() {
+                                            redirectTo_Logout(response.redirection);
+                                        }, response.timer);
+                                    }
+                                };
+                                xhr.send("token=" + token);
+                                //Para que no se automande el formulario
+                                return false;     
+                            }
+                        });
+                }
+            </script>
+
+            <h1>Tablas</h1>
+            <button class="btn btn-link" onclick="redirectTo('changes.php?table=departamento_consultas')">Departamento de consultas</button>
+            <button class="btn btn-link" onclick="redirectTo('changes.php?table=derivado')">Derivado</button>
+            <button class="btn btn-link" onclick="redirectTo('changes.php?table=discapacidad')">Discapacidad</button>
+            <button class="btn btn-link" onclick="redirectTo('changes.php?table=estado_civil')">Estado civil</button>
+            <button class="btn btn-link" onclick="redirectTo('changes.php?table=fuente_ingresos')">Fuente de ingresos</button>
+            <button class="btn btn-link" onclick="redirectTo('changes.php?table=nivel_estudios')">Nivel de estudios</button>
+            <button class="btn btn-link" onclick="redirectTo('changes.php?table=tipo_consultas')">Tipo de consultas</button>
+            <button class="btn btn-link" onclick="redirectTo('changes.php?table=trabajo')">Trabajo</button>
+            <button class="btn btn-link" onclick="redirectTo('changes.php?table=vivienda')">Vivienda</button>
+            <button class="btn btn-link" onclick="redirectTo('women_changes.php')">Mujeres</button>
+        </div>
+    </body>
+</html>

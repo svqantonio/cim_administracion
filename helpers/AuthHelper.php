@@ -26,14 +26,16 @@
                         "status" => "success",
                         "message" => "Usuario logueado correctamente",
                         "token" => $token,
-                        "redirection" => "index.html"
+                        "redirection" => "main.html",
+                        "timer" => 1500
                     ];
                 } else {
                     return [
                         "status" => "error",
                         "message" => "Error al loguear user",
                         "token" => null,
-                        "redirection" => "login.html"
+                        "redirection" => "login.html",
+                        "timer" => 1500
                     ];
                 }
             }
@@ -62,14 +64,16 @@
                         "status" => "success",
                         "message" => "Usuario insertado correctamente",
                         "token" => $token,
-                        "redirection" => "index.html"
+                        "redirection" => "index.html",
+                        "timer" => 1500
                     ];
                 } else {
                     return [
                         "status" => "error",
                         "message" => "Error al insertar token",
                         "token" => null,
-                        "redirection" => "login.html"
+                        "redirection" => "login.html",
+                        "timer" => 1500
                     ];
                 }
             } else {
@@ -77,6 +81,7 @@
                     "status" => false,
                     "message" => "Error al insertar usuario: " . $stmt->errorInfo()[2],
                     "token" => null,
+                    "timer" => 1500
                 ];
             } 
         }
@@ -105,7 +110,28 @@
 
             if (!$result)
                 return true;
-            else 
-                return true;
+            
+            return false;
+        }
+
+        public static function logout($token) {
+            global $conn;
+
+            $stmt = $conn->prepare("DELETE FROM tokens WHERE token = :token;");
+            $stmt->bindParam(':token', $token);
+            if ($stmt->execute()) 
+                return [
+                    "status" => "success",
+                    "message" => "Has cerrado sesión correctamente!",
+                    "redirection" => "index.html",
+                    "timer" => 1500
+                ];
+            else    
+                return [
+                    "status" => "error",
+                    "message" => "Error al insertar usuario: " . $stmt->errorInfo()[2],
+                    "redirection" => "main.html",
+                    "timer" => 1500
+                ]; 
         }
     }
