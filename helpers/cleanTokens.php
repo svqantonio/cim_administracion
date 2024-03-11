@@ -1,5 +1,4 @@
 <?php
-
     require_once 'helpers/ctes.php';
 
     class cleanTokens {

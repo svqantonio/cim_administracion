@@ -26,4 +26,11 @@ document.addEventListener("DOMContentLoaded", function() {
   bootstrapScript.setAttribute("integrity", "sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+");
   bootstrapScript.setAttribute("crossorigin", "anonymous");
   document.body.appendChild(bootstrapScript);
+
+  // Crea un elemento link para el favicon
+  var favicon = document.createElement('link');
+  favicon.rel = 'shortcut icon';
+  //No tienes que llamar a esta ruta desde donde está el header.js si no desde donde llamas al header js, por eso no le pongo el ../ , porque como yo llamo a estos archivos desde index.html que esta en la ruta base pues solamente le señalo la carpeta imgs/button_hover.png y no ../imgs/button_hover.png ya que no tiene que salir de la carpeta helpers
+  favicon.href = 'imgs/button_hover.png';
+  document.head.appendChild(favicon);
 });

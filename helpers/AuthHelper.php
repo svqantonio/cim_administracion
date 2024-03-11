@@ -3,7 +3,7 @@
     class AuthHelper {
 
         public static function login($user, $password) {
-            global $conn;
+            global $conn; global $timer;
             $random = random_bytes(32);
             $token = bin2hex($random);
             $password = md5($password);
@@ -15,8 +15,8 @@
 
             if ($result) {
                 $user_id = $result['id'];
-                $expiration_time = date('Y-m-d H:i:s', strtotime('+1 hour'));
-                $stmt = $conn->prepare("INSERT INTO tokens SET token = :token, user_id = :user_id, token_expiration = :token_expiration");
+                $expiration_time = date('Y-m-d H:i:s', strtotime('+1 hour')); // Sumar una hora al tiempo 
+                $stmt = $conn->prepare("INSERT INTO tokens SET token = :token, user_id = :user_id, token_expiration = :token_expiration;");
                 $stmt->bindParam(':token', $token);
                 $stmt->bindParam(':user_id', $user_id);
                 $stmt->bindParam(':token_expiration', $expiration_time);
@@ -27,7 +27,7 @@
                         "message" => "Usuario logueado correctamente",
                         "token" => $token,
                         "redirection" => "main.html",
-                        "timer" => 1500
+                        "timer" => $timer,
                     ];
                 } else {
                     return [
@@ -35,14 +35,22 @@
                         "message" => "Error al loguear user",
                         "token" => null,
                         "redirection" => "login.html",
-                        "timer" => 1500
+                        "timer" => $timer
                     ];
                 }
+            } else {
+                return [
+                    "status" => "error",
+                    "message" => "Error al hacer la primera peticion",
+                    "token" => null,
+                    "redirection" => null,
+                    "timer" => null
+                ];
             }
         }
 
         public static function register($user, $password) {
-            global $conn;
+            global $conn; global $timer;
 
             $password = md5($password);
             $random = random_bytes(32);
@@ -65,7 +73,7 @@
                         "message" => "Usuario insertado correctamente",
                         "token" => $token,
                         "redirection" => "index.html",
-                        "timer" => 1500
+                        "timer" => $timer
                     ];
                 } else {
                     return [
@@ -73,7 +81,7 @@
                         "message" => "Error al insertar token",
                         "token" => null,
                         "redirection" => "login.html",
-                        "timer" => 1500
+                        "timer" => $timer
                     ];
                 }
             } else {
@@ -81,7 +89,8 @@
                     "status" => false,
                     "message" => "Error al insertar usuario: " . $stmt->errorInfo()[2],
                     "token" => null,
-                    "timer" => 1500
+                    "redirection" => null,
+                    "timer" => $timer
                 ];
             } 
         }
@@ -115,7 +124,7 @@
         }
 
         public static function logout($token) {
-            global $conn;
+            global $conn; global $timer;
 
             $stmt = $conn->prepare("DELETE FROM tokens WHERE token = :token;");
             $stmt->bindParam(':token', $token);
@@ -124,14 +133,14 @@
                     "status" => "success",
                     "message" => "Has cerrado sesión correctamente!",
                     "redirection" => "index.html",
-                    "timer" => 1500
+                    "timer" => $timer
                 ];
             else    
                 return [
                     "status" => "error",
                     "message" => "Error al insertar usuario: " . $stmt->errorInfo()[2],
                     "redirection" => "main.html",
-                    "timer" => 1500
+                    "timer" => $timer
                 ]; 
         }
     }

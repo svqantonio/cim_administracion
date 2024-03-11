@@ -1,9 +1,10 @@
 <?php
+    date_default_timezone_set('Europe/Madrid');
 
     $servername = "localhost";  
     $username = "root";    
-    $password = "";  
-    $dbname = "cim_duplicada";
+    $password = "4690aGa!=$$";  
+    $dbname = "cim";
 
     $options = array(
         PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4",
@@ -11,3 +12,5 @@
     );
 
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password, $options);
+
+    $timer = 1500;
