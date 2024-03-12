@@ -2,15 +2,15 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <link rel="stylesheet" href="css/changes.css">
+        <!--<link rel="stylesheet" href="css/changes.css">-->
         <script src="js/header.js"></script>
         <script src="js/redirect.js"></script>
         <title>Cambios en tablas - CIM</title>
     </head>
     <body>
         <div class="container">
-            <button class="btn btn-link" onclick="window.location.href='<?php echo $ruta_retorno ?>'"><- Volver</button>
-            <table class="table table-hover table-success" border="1px solid black">
+            <button class="btn btn-link" onclick="window.history.back()"><- Volver</button>
+            <table id="tabla_bbdd" class="table table-hover table-success" border="1px solid black">
                 <thead>
                     <tr>
                         <th>Id</th>
@@ -24,18 +24,55 @@
                         <script>
                             document.addEventListener('DOMContentLoaded', function() {
                                 const parametros = new URLSearchParams(window.location.search);
-                                const tabla = parametros.get('table');
-                                
+                                var tabla = parametros.get('table');
                                 var xhr = new XMLHttpRequest();
-                                xhr.open("POST", 'changess.php&table=' + tabla, true);
-                                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                                xhr.open("POST", 'changes.php?table=' + tabla, true);
+                                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
                                 xhr.onreadystatechange = function() {
                                     if (xhr.readyState === 4) {
                                         if (xhr.status === 200) {
-                                            const tbody = document.querySelector('tbody');
-                                            const newRow = document.createElement('tr');
-                                            newRow.innerHTML = `<td>${table}</td><td>Datos obtenidos de la base de datos</td><td>Editar</td><td>Borrar</td>`;
-                                            tbody.appendChild(newRow);
+                                            var dataTable = JSON.parse(xhr.responseText);
+                                            var tabla_bbdd = document.getElementById('tabla_bbdd');
+                                            var editForm = document.getElementById('editForm');
+                                            
+                                            dataTable.forEach(function(response) {
+                                                var tr = document.createElement('tr');
+
+                                                var idTD = document.createElement('td');
+                                                idTD.textContent = response.id;
+
+                                                var valorTD = document.createElement('td');
+                                                valorTD.textContent = response.valor.toUpperCase();
+
+                                                var editButtonTD = document.createElement('td');
+                                                var editButton = document.createElement('button');
+                                                editButton.textContent = 'Editar';
+                                                editButton.onclick = function() {
+                                                    //peticion xhr para recuperar datos para editar y luego cambiamos el valor de la tabla principal a style.display -> none
+                                                    //response.id para usar el id
+                                                    var idFormEdit = document.getElementById('idFormEdit');
+                                                    var valorFormEdit = document.getElementById('valorFormEdit');
+                                                    idFormEdit.value = response.id;
+                                                    valorFormEdit.value = response.valor;
+                                                    tabla_bbdd.style.display = 'none'; editForm.style.display = 'block';
+
+                                                };
+                                                editButtonTD.appendChild(editButton);
+
+                                                var deleteButtonTD = document.createElement('td');
+                                                var deleteButton = document.createElement('button');
+                                                deleteButton.textContent = "Borrar";
+                                                deleteButton.onclick = function() {
+                                                    // alerta swal fire para confirmar si quiere borrar los datos y si quiere peticion xhr para borrar los datos, cuadro de confirmacion / error y recargamos la pagina
+                                                };
+                                                deleteButtonTD.appendChild(deleteButton);
+
+                                                tr.appendChild(idTD);
+                                                tr.appendChild(valorTD);
+                                                tr.appendChild(editButtonTD);
+                                                tr.appendChild(deleteButtonTD);
+                                                tabla_bbdd.appendChild(tr);
+                                            }); 
                                         }
                                     }
                                 }
@@ -45,6 +82,45 @@
                     </tr>
                 </tbody>
             </table>
+            <form id="editForm" onclick="return validateForm()" style="display: none;">
+                <h3>Formulario de edición</h3>
+                <div class="form-control">
+                    <label>Id</label>
+                    <input type="number" id="idFormEdit" required name="id" />
+                </div>
+
+                <div class="form-control">
+                    <label>Valor</label>
+                    <input type="text" id="valorFormEdit" required name="valor" />
+                </div>
+                <button type="submit" id="btnSubmit" class="btn btn-primary">Editar</button>
+                <button type="button" id="btnBack" class="btn btn-secondary" onclick="tabla_bbdd.style.display = 'block'; editForm.style.display = 'none';">Volver</button>
+            </form>
+            <script>
+                function validateForm() {
+                    Swal.fire({
+                        title: "¿Estos son los datos que quieres introducir?",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#3085d6",
+                        cancelButtonColor: "#d33",
+                        confirmButtonText: "Editar",
+                        cancelButtonText: "Cancelar"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            var id = document.getElementById('idFormEdit').value;
+                            var valor = document.getElementById('valorFormEdit').value;
+                            var xhr = new XMLHttpRequest();
+                            xhr.open("POST", 'changes.php?table=' + tabla + "&id=" + id + "&valor=" + value, true);
+                            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+                            xhr.onreadystatechange = function() {
+                                //Vete a changes.php para terminar el metodo
+                            }
+                        }
+                    });
+                    return false;
+                }
+            </script>
         </div>
     </body>
 </html>

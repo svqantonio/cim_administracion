@@ -11,7 +11,7 @@
     $routes = array(
         'main.html' => 'main.html',
         'index.html' => 'index.html',
-        'changes.php' => 'changes.php'
+        'changes.html' => 'changes.html'
     );
 
     if (isset($logout)) {
@@ -23,7 +23,7 @@
         $res = AuthHelper::logued($token);
         if ($res) {
             if (array_key_exists($page, $routes))
-                echo json_encode(array('redirect' => $page));
+                echo json_encode(array('redirect' => $page, 'table' => $table));
             else 
                 echo json_encode(array('error' => 'Página no encontrada'));
         } else {

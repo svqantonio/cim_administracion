@@ -13,7 +13,7 @@ function redirectTo(page, status, table) {
             if (xhr.status === 200) {
                 var response = JSON.parse(xhr.responseText);
                 if (response.redirect)
-                    window.location.href = response.redirect;
+                    window.location.href = response.redirect + "?table=" + response.table;
                 else 
                     console.error("Error: No se ha especificado una redireccion: ");
             }
@@ -21,24 +21,3 @@ function redirectTo(page, status, table) {
     };
     xhr.send();
 }
-
-/*function redirectTo_Logout(page) {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", "routes.php?pag=" + page + "&logout=true", true);
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
-                var response = JSON.parse(xhr.responseText);
-                if (response.redirect) 
-                    window.location.href = response.redirect; 
-                else 
-                    console.error("Error: No se ha especificado una redireccion: ");
-
-            } else {
-                console.error("Error al enviar la solicitud:", xhr.status);
-            }
-        }
-    };
-    xhr.send();
-}*/
