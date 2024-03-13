@@ -5,18 +5,29 @@
     require_once 'helpers/ctes.php';
 
     $table = isset($_GET['table']) ? $_GET['table'] : null;
-    $function = isset($_GET['function']) ? $_GET['function'] : null;
     $id = isset($_GET['id']) ? $_GET['id'] : null;
     $valor = isset($_GET['valor']) ? $_GET['valor'] : null;
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        if ($id != null && $valor != null) {
-            //Terminar de ver como puedo plantear este metodo, ya que voy a tener que editar tambien las mujeres y a las muy malas los documentos. Ver si me sale rentable mandarle un json.
-            $response = Data_tables::editValues($table, $id, $)
+        if ($table != null) {
+            if ($id != null && $valor != null) {
+                $response = Data_tables::editValues($table, $id, $valor);
+                header('Content-Type: application/json');
+                header('Content-Type: text/html; charset=utf-8');
+                echo json_encode($response);
+            } else if ($id != null && $valor == null) {
+                $response = Data_tables::deleteValues($table, $id);
+                header('Content-Type: application/json');
+                header('Content-Type: text/html; charset=utf-8');
+                echo json_encode($response);
+            } else {
+                $response = Data_tables::getTableDates($table);
+                header('Content-Type: application/json');
+                header('Content-Type: text/html; charset=utf-8');
+                echo json_encode($response);
+            }
         } else {
-            $response = Data_tables::getTableDates($table);
-            header('Content-Type: application/json');
-            header('Content-Type: text/html; charset=utf-8');
-            echo json_encode($response);
+            $response = array('status' => 'error', 'message' => 'No has pasado ninguna tabla!', 'timer' => $timer);
+            echo json_encode(response);
         }
     }

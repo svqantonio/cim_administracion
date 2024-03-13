@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>Cambio tabla Mujeres - CIM</title>
+    </head>
+    <body>
+        <div class="container">
+            <button class="btn btn-link" onclick="window.location.href='administration_index.php'"><- Volver</button>
+            <table class="table table-hover table-success" style="border: 1px solid black">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Nombre</th>
+                        <th>Apellidos</th>
+                        <th>Dni</th>
+                        <th>Fecha de nacimiento</th>
+                        <th>Dirección</th>
+                        <th>Editar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            var xhr = new XMLHttpRequest();
+                            xhr.open('POST', 'changes.php', true);
+                            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+                            xhr.onreadystatechange = function() {
+                                if (xhr.readyState === 4) {
+                                    if (xhr.status === 200) {
+                                        //TENGO QUE TERMINAR EN CHANGES.PHP EL SERVICIO PARA PODER RECUPERAR LOS DATOS DE LAS MUJERES, TAMBIEN TENGO QUE PLANTEARLO PARA NO HACER OTRO ARCHIVO, AUNQUE HACER OTRO ARCHIVO NO ES MALA IDEA DEL TODO.
+                                    }
+                                }
+                            };
+                        });
+                    </script>
+                </tbody>
+    </body>
+</html>

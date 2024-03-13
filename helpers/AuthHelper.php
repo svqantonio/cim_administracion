@@ -15,7 +15,7 @@
 
             if ($result) {
                 $user_id = $result['id'];
-                $expiration_time = date('Y-m-d H:i:s', strtotime('+1 hour')); // Sumar una hora al tiempo 
+                $expiration_time = date('Y-m-d H:i:s', strtotime('+1 hour'));
                 $stmt = $conn->prepare("INSERT INTO tokens SET token = :token, user_id = :user_id, token_expiration = :token_expiration;");
                 $stmt->bindParam(':token', $token);
                 $stmt->bindParam(':user_id', $user_id);

@@ -51,7 +51,7 @@
                         localStorage.setItem('token', response.token);
                         setTimeout(function() {
                             redirectTo(response.redirection);
-                        }, 2000);
+                        }, 1500);
                     }
                 }
                 xhr.send("user=" + user + "&password=" + password);
