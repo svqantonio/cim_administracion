@@ -2,10 +2,11 @@
 <html lang="es">
     <head>
         <meta charset="UTF-8">
-        <link rel="stylesheet" href="css/main.css">
-        <script src="js/header.js"></script>
-        <script src="js/redirect.js"></script>
         <title>Administración - CIM</title>
+        <link rel="stylesheet" href="css/main.css">
+        <script src="js/libraries/sweetalert.js"></script>
+        <script src="js/header.js"></script>
+        <script src="js/log_verification.js"></script>
     </head>
     <body>
         <div class="centrar">
@@ -21,50 +22,49 @@
                         cancelButtonColor: "#d33",
                         confirmButtonText: "Cerrar sesión",
                         cancelButtonText: "Cancelar",
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                var xhr = new XMLHttpRequest();
-                                xhr.open("POST", "logout.php", true);
-                                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                                xhr.onreadystatechange = function() {
-                                    if (xhr.readyState === 4) {
-                                        var response = JSON.parse(xhr.responseText);
-                                        console.log(response);
-                                        Swal.fire({
-                                            position: "center",
-                                            title: response.message,
-                                            icon: response.status,
-                                            showConfirmButton: false,
-                                            timer: response.timer
-                                        });
-                                        if (xhr.status === 200) 
-                                            localStorage.removeItem('token');
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            var xhr = new XMLHttpRequest();
+                            xhr.open("POST", "logout.php", true);
+                            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                            xhr.onreadystatechange = function() {
+                                if (xhr.readyState === 4) {
+                                    var response = JSON.parse(xhr.responseText);
+                                    console.log("Respuesta del servidor a cerrar sesion: ", response);
+                                    Swal.fire({
+                                        position: "center",
+                                        title: response.message,
+                                        icon: response.status,
+                                        showConfirmButton: false,
+                                        timer: response.timer
+                                    });
+                                    if (xhr.status === 200) 
+                                        localStorage.removeItem('token');
 
-                                        setTimeout(function() {
-                                            //redirectTo_Logout(response.redirection);
-                                            redirectTo(response.redirection, '&logout=true', null);
-                                        }, response.timer);
-                                    }
-                                };
-                                xhr.send("token=" + token);
-                                //Para que no se automande el formulario
-                                return false;     
-                            }
-                        });
+                                    setTimeout(function() {
+                                        window.location.href = response.redirection;
+                                    }, response.timer);
+                                }
+                            };
+                            xhr.send("token=" + token);
+                            //Para que no se automande el formulario
+                            return false;     
+                        }
+                    });
                 }
             </script>
 
             <h1>Tablas</h1>
-            <button class="btn btn-link" onclick="redirectTo('changes.html', null, '&table=departamento_consultas')">Departamento de consultas</button>
-            <button class="btn btn-link" onclick="redirectTo('changes.html', '&table=derivado')">Derivado</button>
-            <button class="btn btn-link" onclick="redirectTo('changes.html', null, '&table=discapacidad')">Discapacidad</button>
-            <button class="btn btn-link" onclick="redirectTo('changes.html', null, '&table=estado_civil')">Estado civil</button>
-            <button class="btn btn-link" onclick="redirectTo('changes.html', null, '&table=fuente_ingresos')">Fuente de ingresos</button>
-            <button class="btn btn-link" onclick="redirectTo('changes.html', null, '&table=nivel_estudios')">Nivel de estudios</button>
-            <button class="btn btn-link" onclick="redirectTo('changes.html', null, '&table=tipo_consultas')">Tipo de consultas</button>
-            <button class="btn btn-link" onclick="redirectTo('changes.html', null, '&table=trabajo')">Trabajo</button>
-            <button class="btn btn-link" onclick="redirectTo('changes.html', null, '&table=vivienda')">Vivienda</button>
-            <button class="btn btn-link" onclick="redirectTo('women_changes.html', null, null)">Mujeres</button>
+            <button class="btn btn-link" onclick="window.location.href = 'changes.html?table=departamento_consultas'">Departamento de consultas</button>
+            <button class="btn btn-link" onclick="window.location.href = 'changes.html?table=derivado'">Derivado</button>
+            <button class="btn btn-link" onclick="window.location.href = 'changes.html?table=discapacidad'">Discapacidad</button>
+            <button class="btn btn-link" onclick="window.location.href = 'changes.html?table=estado_civil'">Estado civil</button>
+            <button class="btn btn-link" onclick="window.location.href = 'changes.html?table=fuente_ingresos'">Fuente de ingresos</button>
+            <button class="btn btn-link" onclick="window.location.href = 'changes.html?table=nivel_estudios'">Nivel de estudios</button>
+            <button class="btn btn-link" onclick="window.location.href = 'changes.html?table=tipo_consultas'">Tipo de consultas</button>
+            <button class="btn btn-link" onclick="window.location.href = 'changes.html?table=trabajo'">Trabajo</button>
+            <button class="btn btn-link" onclick="window.location.href = 'changes.html?table=vivienda'">Vivienda</button>
+            <button class="btn btn-link" onclick="window.location.href = 'women_changes.html?table=mujeres'">Mujeres</button>
         </div>
     </body>
 </html>

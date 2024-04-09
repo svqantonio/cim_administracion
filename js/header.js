@@ -4,10 +4,6 @@ document.addEventListener("DOMContentLoaded", function() {
   metaViewport.setAttribute("content", "width=device-width, initial-scale=1.0");
   document.head.appendChild(metaViewport);
 
-  var sweetalertScript = document.createElement("script");
-  sweetalertScript.setAttribute("src", "https://cdn.jsdelivr.net/npm/sweetalert2@11");
-  document.body.appendChild(sweetalertScript);
-
   var bootstrapLink = document.createElement("link");
   bootstrapLink.setAttribute("href", "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css");
   bootstrapLink.setAttribute("rel", "stylesheet");

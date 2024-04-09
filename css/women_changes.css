@@ -1,0 +1,28 @@
+#buscar-filtrar {
+    display: flex;
+    align-items: center;
+    margin-top: 2%;
+    margin-bottom: 2%;
+}
+
+#buscar {
+    flex: 1;
+    margin-right: 10px;
+}
+
+#filtrar {
+    flex: 1;
+}
+
+#paginacion {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2%;
+    flex-wrap: wrap
+}
+
+#buttons {
+    margin-right: 1%;
+    margin-top: 1%;
+}

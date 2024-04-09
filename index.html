@@ -2,10 +2,11 @@
 <html lang="es">
     <head>
         <meta charset="UTF-8">
+        <title>Login - CIM</title>
         <link rel="stylesheet" href="css/index.css">
         <script src="js/header.js"></script>
-        <script src="js/redirect.js"></script>
-        <title>Login - CIM</title>
+        <script src="js/libraries/sweetalert.js"></script>
+        <script src="js/log_verification.js"></script>  
     </head>
     <body>
         <div class="formulario">
@@ -41,16 +42,17 @@
                 xhr.onreadystatechange = function() {
                     if (xhr.readyState === 4) {
                         var response = JSON.parse(xhr.responseText);
-                            Swal.fire({
-                                position: "center",
-                                title: response.message,
-                                icon: response.status,
-                                showConfirmButton: false,
-                                timer: response.timer
-                            });
+                        console.log("Respuesta del servidor al inicio de sesión: ", response);
+                        Swal.fire({
+                            position: "center",
+                            title: response.message,
+                            icon: response.status,
+                            showConfirmButton: false,
+                            timer: response.timer
+                        });
                         localStorage.setItem('token', response.token);
                         setTimeout(function() {
-                            redirectTo(response.redirection);
+                            window.location.href = response.redirection;
                         }, 1500);
                     }
                 }
