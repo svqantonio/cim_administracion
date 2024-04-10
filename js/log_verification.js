@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 //A partir de aqui son funciones de apoyo que van a ser usadas en la funcion principal que es la de arriba
-function initLoginVerification(token) {
+/*function initLoginVerification(token) {
     if (token == null) {
         Swal.fire({
             position: 'center',
@@ -108,7 +108,7 @@ function initLoginVerification(token) {
         };
         xhr.send();
     }
-}
+}*/
 
 function checkearFechaToken(token) {
     return new Promise((resolve, reject) => {

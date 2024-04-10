@@ -25,7 +25,7 @@
                             const parametros = new URLSearchParams(window.location.search);
                             const tabla = parametros.get('table');
                             var xhr = new XMLHttpRequest();
-                            xhr.open("POST", 'manage_tables.php?table=' + tabla, true);
+                            xhr.open("GET", 'tables.php?table=' + tabla, true);
                             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
                             xhr.onreadystatechange = function() {
                                 if (xhr.readyState === 4) {
@@ -71,7 +71,7 @@
                                                 }).then((result) => {
                                                     if (result.isConfirmed) {
                                                         var xhr = new XMLHttpRequest();
-                                                        xhr.open("POST", 'manage_tables.php?table=' + tabla + "&id=" + response.id, true);
+                                                        xhr.open("POST", 'tables.php?table=' + tabla + "&id=" + response.id, true);
                                                         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
                                                         xhr.onreadystatechange = function() {
                                                             if (xhr.readyState === 4) {
@@ -139,7 +139,7 @@
                             var valor = document.getElementById('valorFormEdit').value;
                             console.log("Id: ", id , " valor: ", valor);
                             var xhr = new XMLHttpRequest();
-                            xhr.open("POST", 'manage_tables.php?table=' + tabla + "&id=" + id + "&valor=" + valor, true);
+                            xhr.open("POST", 'tables.php?table=' + tabla + "&id=" + id + "&valor=" + valor, true);
                             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
                             xhr.onreadystatechange = function() {
                                 if (xhr.readyState === 4) {

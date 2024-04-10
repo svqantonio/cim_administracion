@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>Cambio tabla Mujeres - CIM</title>
+        <link rel="stylesheet" href="css/women_changes.css">
+        <script src="js/header.js"></script>
+        <script src="js/libraries/sweetalert.js"></script>
+        <script src="js/log_verification.js"></script>
+        <script src="js/women_data.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <button class="btn btn-link" onclick="window.location.href='main.html'"><- Volver</button>
+            <h3 id="h3_pag">Página </h3>
+
+            <!-- Buscador y filtrar -->
+            <div id="buscar-filtrar">
+                <input type="text" class="form-control" id="busqueda" placeholder="Introduce parámetros sobre alguno de los campos de la tabla para buscar"/>
+                <button class="btn btn-outline-success" id="buscar">Buscar</button>
+                <select class="form-select" id="filtrar" onchange="filtrado(this.value)">
+                    <option disabled selected value="0">Opción de filtrado</option>
+                    <option value="1">Nombre</option>
+                    <option value="2">Apellidos</option>
+                    <option value="3">Dni</option>
+                    <option value="4">Fecha de nacimiento</option>
+                    <option value="5">Dirección</option>
+                    <option value="6">Número de expediente</option>
+                </select>
+            </div>
+
+            <script>
+                document.getElementById('buscar').addEventListener('click', function() {
+                    const search = document.getElementById('busqueda').value;
+                    window.location.href = 'women_search.html?search=' + search + "&page=0";
+                });
+
+                function filtrado(valor) {
+                    console.log(valor);
+                }
+            </script>
+            
+            <table id="women_table" class="table table-hover table-success" style="border: 1px solid black">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Apellidos</th>
+                        <th>Dni</th>
+                        <th>Fecha de nacimiento</th>
+                        <th>Dirección</th>
+                        <th>Número de expediente</th>
+                        <th>Editar</th>
+                        <th>Borrar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <div class="container" id="paginacion"></div>
+    </body>
+</html>

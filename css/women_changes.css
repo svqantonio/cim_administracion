@@ -5,16 +5,20 @@
     margin-bottom: 2%;
 }
 
-#buscar {
+#busqueda {
     flex: 1;
     margin-right: 10px;
+}
+
+#buscar {
+    margin-right: 1%;
 }
 
 #filtrar {
     flex: 1;
 }
 
-#paginacion {
+#paginacion, #h3_pag {
     display: flex;
     align-items: center;
     justify-content: center;

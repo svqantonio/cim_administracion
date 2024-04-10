@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
     <head>
-        <meta charset="UTF-8">
         <title>Administración - CIM</title>
+        <meta charset="UTF-8">
         <link rel="stylesheet" href="css/main.css">
         <script src="js/libraries/sweetalert.js"></script>
         <script src="js/header.js"></script>
@@ -25,7 +25,7 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             var xhr = new XMLHttpRequest();
-                            xhr.open("POST", "logout.php", true);
+                            xhr.open("POST", "log.php?function=logout", true);
                             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                             xhr.onreadystatechange = function() {
                                 if (xhr.readyState === 4) {
@@ -64,7 +64,8 @@
             <button class="btn btn-link" onclick="window.location.href = 'changes.html?table=tipo_consultas'">Tipo de consultas</button>
             <button class="btn btn-link" onclick="window.location.href = 'changes.html?table=trabajo'">Trabajo</button>
             <button class="btn btn-link" onclick="window.location.href = 'changes.html?table=vivienda'">Vivienda</button>
-            <button class="btn btn-link" onclick="window.location.href = 'women_changes.html?table=mujeres'">Mujeres</button>
+            <!--<button class="btn btn-link" onclick="window.location.href = 'women_changes.html?table=mujeres&page=0'">Mujeres</button>-->
+            <button class="btn btn-link" onclick="window.location.href = 'women_list.html?table=mujeres&page=0'">Mujeres</button>
         </div>
     </body>
 </html>

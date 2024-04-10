@@ -6,8 +6,9 @@
             global $conn;
     
             try {
-                $stmt = $conn->prepare("DELETE FROM tokens WHERE token_expiration < DATE_ADD(NOW(), INTERVAL 2 HOUR);");
-                //$stmt = $conn->prepare("DELETE FROM tokens WHERE token_expiration < NOW();");
+                
+                //$stmt = $conn->prepare("DELETE FROM tokens WHERE token_expiration < DATE_ADD(NOW(), INTERVAL 2 HOUR);"); //Este sirve para mi servidor privado
+                $stmt = $conn->prepare("DELETE FROM tokens WHERE token_expiration < NOW();");
                 $stmt->execute();
                 if ($stmt->rowCount() > 0)
                     return [

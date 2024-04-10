@@ -1,11 +1,13 @@
 <?php
     date_default_timezone_set('Europe/Madrid');
 
+    //Datos de mi servidor privado
     /*$servername = "localhost";  
     $username = "root";    
     $password = "4690aGa!=$$";  
     $dbname = "cim";*/
 
+    //Datos del servidor del CIM
     $servername = "lldn637.servidoresdns.net";
     $username = "qaik701";
     $password = "Ant0n10Cabr0n";

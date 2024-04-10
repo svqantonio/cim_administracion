@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <title>Cambio en usuaria específica - CIM</title>
+        <meta charset="UTF-8">
+        <!--<link rel="stylesheet" href="">-->
+        <script src="js/header.js"></script>
+        <script src="js/select.js"></script>
+        <script src="js/capitalize.js"></script>
+        <script src="js/age.js"></script>
+        <script src="js/libraries/sweetalert.js"></script>
+        <script src="js/libraries/fontawesome.js"></script>
+        <script src="js/log_verification.js"></script>
+    </head>
+    <body>
+        <script>
+            //Defino el array de claves ajenas aqui para tenerlo de manera global, luego lo relleno cuando reciba la respuesta de la peticion xhr
+            var ids_clavesAjenas;
+            //Arrays de datos necesarios para rellenar los selects
+            var tablas_clavesAjenas = ['vivienda', 'discapacidad', 'estado_civil', 'nivel_estudios', 'trabajo', 'trabajo', 'fuente_ingresos'];
+            var selects_clavesAjenas = ['vivienda', 'discapacidad', 'estado_civil', 'nivel_estudios', 'trabajo_mujer', 'trabajo_comp_select', 'fuente_ingresos'];
+
+            //Estoy haciendo este script para tener en un console log todos los datos de la mujer
+            window.onload = function() {
+                //Cogo el h3 para cuando me lleguen los datos de la mujer ponerle el nombre y apellidos
+                var headerForm = document.getElementById('headerForm');
+                var headerFechaEntrada = document.getElementById('headerFechaEntrada');
+                var parametros = new URLSearchParams(window.location.search);
+                var table = parametros.get('table');
+                var id = parametros.get('id');
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", "tables.php?table=" + table + "&id=" + id + "&function=women_id", true);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            var response = JSON.parse(xhr.responseText);
+                            console.log("Datos de la mujer: ", response);
+
+                            var edad = calculateAge(response.fecha_nac);
+                            var edadInput = document.getElementById('edad');
+                            edadInput.value = edad;
+
+                            headerForm.textContent += response.nombre + " " + response.apellidos;
+                            headerFechaEntrada.textContent += new Date(response.fecha_entrada).toLocaleDateString('es-ES'); //Fecha formateada a formato español
+                            //Recorro el JSON del resultado
+                            for (var datoMujer in response) {
+                                // Verifica que la propiedad sea propia del objeto (no heredada)
+                                if (response.hasOwnProperty(datoMujer)) {
+                                    //Guarda en una variable lo que está dentro de cada posicion del JSON
+                                    var valor = response[datoMujer];
+                                    //Coge el input que tiene el mismo nombre que las claves del json
+                                    var input = document.getElementById(datoMujer);
+                                    if (input) {
+                                        //Le mete al input el valor de la clave
+                                        input.value = valor;
+                                        //Si el input es el de orden_alejamiento y el valor es "si", marca el checkbox
+                                        if (datoMujer === 'orden_alejamiento' && valor === 'si') {
+                                            var checkbox = document.getElementById('orden_alejamiento');
+                                            checkbox.checked = true;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            //Metemos a través de un array los valores de las claves ajenas para poder rellenar los selects
+                            ids_clavesAjenas = [response.vivienda_id, response.discapacidad_id, response.estado_civil_id, response.nivel_estudios_id, response.trabajo_id, response.trabajo_comp_select_id, response.fuente_ingresos_id];
+
+                            //Vas recorriendo el array de las tablas de claves ajenas y le va pasando datos necesarios a la funcion.
+                            tablas_clavesAjenas.forEach(function(tabla, index) {
+                                rellenarSelect_seleccionado(tabla, selects_clavesAjenas[index], ids_clavesAjenas[index]);
+                            });
+                        }
+                    }
+                };
+                xhr.send();
+            }
+        </script>
+        <div class="container" id="selectsLlenos">
+            <button class="btn btn-link" onclick="window.history.back()"><- Volver</button>
+            <h3 id="headerForm">Formulario de edición para la usuaria: </h3>
+            <h3 id="headerFechaEntrada">Fecha de entrada de la usuaria: </h3>
+            <div class="alert alert-warning" role="alert">
+                <i class="fa-solid fa-triangle-exclamation" style="letter-spacing: 2px"> Cuidado, no puedes dejar sin seleccionar los campos desplegables, te va a dar error!</i>
+            </div>
+            <form class="row g-3" method="POST" onsubmit="return submitForm()" style="margin-bottom: 5%;">
+                <div class="col-md-6">
+                    <label class="form-label" for="nombre">Nombre:</label>
+                    <input type="text" class="form-control" id="nombre" name="nombre" required value="" onkeypress="return /[a-z ñ]/i.test(event.key)" />
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label" for="apellidos">Apellidos:</label>
+                    <input type="text" class="form-control" id="apellidos" name="apellidos" required value="" onkeypress="return /[a-z ñ]/i.test(event.key)" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="fecha_nac">Fecha nacimiento:</label>
+                    <input type="date" class="form-control" id="fecha_nac" name="fecha_nac" value="" min="1950-01-01" max="2023-12-31"/>
+                </div>
+                
+                <div class="col-md-4">
+                    <label class="form-label" for="dni">DNI: </label>
+                    <input type="tel" class="form-control" id="dni" name="dni" maxlength="9" onkeypress="return /[a-z0-9]/i.test(event.key)" value="" />
+                </div>
+                <div class="col-md-2">
+                    <label for="edad" class="form-label">Edad: </label>
+                    <input id="edad" class="form-control" readonly />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="direccion">Dirección: </label>
+                    <input type="text" id="direccion" class="form-control" name="direccion" required/>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="vivienda">Vivienda: </label>
+                    <select name="vivienda" class="form-select" id="vivienda">
+                        <option disabled value="0">Seleccione una opción</option>
+                    </select>
+                </div>  
+                <div class="col-md-2">
+                    <label class="form-label" for="detalle_vivienda">Detalle vivienda: </label>
+                    <input type="text" class="form-control" id="detalle_vivienda" name="detalle_vivienda" value=""/> 
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="discapacidad">Discapacidad: </label>
+                    <select name="discapacidad" class="form-select" id="discapacidad" value="">
+                        <option disabled value="0">Seleccione una opción</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="porcentaje_discap">Porcentaje discapacidad:</label>
+                    <input type="number" id="porcentaje_discap" name="porcentaje_discap" class="form-control" /> 
+                </div>
+                <div class="col-md-2" style="margin-top: 4%;">
+                    <label class="form-check-label" for="orden_alejamiento">¿Orden de alejamiento?</label>
+                    <input type="checkbox" class="form-check-input" name="orden_alejamiento" id="orden_alejamiento" value="on" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="movil">Móvil:</label>
+                    <input type="tel" class="form-control" id="movil" name="movil" maxlength="9" value="" onkeypress="return /[0-9]/i.test(event.key)" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="telefono">Teléfono: </label>
+                    <input type="tel" class="form-control" id="telefono" name="telefono" maxlength="9" value="" onkeypress="return /[0-9]/i.test(event.key)" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label" for="telefono_trabajo">Teléfono trabajo:</label>
+                    <input type="tel" class="form-control" id="telefono_trabajo" name="telefono_trabajo" maxlength="9" value="" onkeypress="return /[0-9]/i.test(event.key)" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="demanda_empleo">Demanda de empleo: </label>
+                    <input type="text" class="form-control" name="demanda_empleo" value="" id="demanda_empleo" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="demanda_formacion">Demanda de formación: </label>
+                    <input type="text" class="form-control" name="demanda_formacion" value="" id="demanda_formacion" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label" for="expediente">Expediente: </label>
+                    <input type="text" class="form-control" name="expediente" value="" id="expediente">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="estado_civil" >Estado Civil:</label>
+                    <select name="estado_civil" class="form-select" id="estado_civil" value="">
+                        <option disabled value="0">Seleccione una opción</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="num_hijos">Número de hijos:</label>
+                    <input type="tel" class="form-control" id="num_hijos" name="num_hijos" value="" maxlength="9" onkeypress="return /[0-9]/i.test(event.key)" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label" for="edades">Edades:</label>
+                    <input type="text" class="form-control" id="edades" name="edades" value="" onkeypress="return /[0-9,]/i.test(event.key)" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label" for="nivel_estudios">Nivel de estudios:</label>
+                    <select name="nivel_estudios" class="form-select" value="" id="nivel_estudios">
+                        <option disabled value="0">Seleccione una opción</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="descripcion_estudios">Descripción estudios:</label>
+                    <input type="text" class="form-control" id="descripcion_estudios" value="" name="descripcion_estudios">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label" for="trabajo_mujer">Trabajo:</label>
+                    <select class="form-select" name="trabajo" value="" id="trabajo_mujer">
+                        <option disabled value="0">Seleccione una opción</option>
+                    </select>    
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="desc_trabajo">Descripción trabajo:</label>
+                    <input type="text" class="form-control" id="desc_trabajo" value="" name="desc_trabajo">
+                </div>
+                
+                <div class="col-md-6">
+                    <label class="form-label" for="fuente_ingresos">Fuente Ingresos:</label>
+                    <select class="form-select" name="fuente_ingresos" value="" id="fuente_ingresos">
+                        <option disabled value="0">Seleccione una opción</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="ingresos">Ingresos:</label>
+                    <input type="tel" class="form-control" id="ingresos" name="ingresos" value="" maxlength="7" onkeypress="return /[0-9]/i.test(event.key)" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="historial">Historial: </label>
+                    <textarea name='historial' class="form-control" id='historial' rows='8' cols='80'></textarea>
+                </div>
+
+                <h3>Datos del compañero: </h3>
+                <div class="col-md-6">
+                    <label class="form-label" for="companyero">Nombre y apellidos</label>
+                    <input type="text" class="form-control" id="companyero" value="" name="companyero" onkeypress="return /[a-z ñ]/i.test(event.key)" style="margin-right: 2%">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="trabajoCompSelect">Modalidad de trabajo:</label>
+                    <select name="trabajo_comp_select" class="form-select" id="trabajo_comp_select" value="">
+                        <option disabled value="0">Seleccione una opción</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="trabajoCompDesc">Descripción del trabajo del compañero:</label>
+                    <input type="text" class="form-control" id="trabajo_comp_desc" value="" name="trabajo_comp_desc">   
+                </div>
+
+                <div class="form-group">
+                    <button class="btn btn-primary" type="submit">Editar</button>
+                </div>
+            </form>
+        </div>
+        <script>
+            function submitForm() {
+                Swal.fire({
+                    title: "¿Estos datos son correctos?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Editar",
+                    cancelButtonText: "Cancelar"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        //Aqui recogo los datos necesarios para la hacer la peticion
+                        var parametros = new URLSearchParams(window.location.search);
+                        var table = parametros.get('table');
+                        var id = parametros.get('id');
+                        var values_form_array = ['nombre', 'apellidos', 'fecha_nac', 'dni', 'direccion', 'vivienda', 'detalle_vivienda', 'discapacidad', 'porcentaje_discap', 'orden_alejamiento', 'movil', 'telefono', 'telefono_trabajo', 'demanda_empleo', 'expediente', 'demanda_formacion', 'estado_civil', 'num_hijos', 'edades', 'nivel_estudios', 'descripcion_estudios', 'trabajo_mujer', 'desc_trabajo', 'fuente_ingresos', 'ingresos', 'historial', 'companyero', 'trabajo_comp_select', 'trabajo_comp_desc'];
+                        var inputValues = {};
+                        for (let item of values_form_array) {
+                            var input = document.getElementById(item);
+                            //Comprobacion para que cambie los valores del checkbox en caso de que esté seleccionado o no.
+                            if (input.type === 'checkbox')
+                                inputValues[item] = input.checked ? 'si' : 'no';
+                            else
+                                inputValues[item] = input.value;
+                        }
+
+                        //Hay que pasar el dni, si no solo tienes en el json los values de los inputs, pero el dni no.
+                        inputValues['id'] = id;
+                        console.log("Datos para editar la mujer: ", inputValues);
+                        
+                        //Peticion para editar los datos de la mujer
+                        var xhr = new XMLHttpRequest();
+                        //Le pongo el valor = true ya que dentro de manage_tables se comprueba si el valor es diferente de null para meterse dentro de la parte de editar la tabla de la mujer pero yo no le estoy pasando el json por parametro y en su momento no tuve eso en cuenta.
+                        xhr.open("POST", "tables.php?table=" + table + "&id=" + id + "&valor=true", true);
+                        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
+                        xhr.onreadystatechange = function() {
+                            if (xhr.readyState === 4) {
+                                if (xhr.status === 200) {
+                                    var response = JSON.parse(xhr.responseText);
+                                    console.log("Respuesta del servidor al intento de editar datos: ", response);
+                                    Swal.fire({
+                                        position: "center",
+                                        icon: response.status,
+                                        title: response.message,
+                                        showConfirmButton: false,
+                                        timer: response.timer
+                                    });
+                                    setTimeout(function() {
+                                        location.reload(true);
+                                    }, response.timer);
+                                }
+                            }                
+                        }
+                        xhr.send(JSON.stringify(inputValues));
+                    }
+                }); 
+                //Para evitar que el formulario se mande automaticamente
+                return false;
+            }
+        </script>
+    </body>
+</html>

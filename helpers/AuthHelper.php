@@ -95,34 +95,6 @@
             } 
         }
 
-        /*public static function logued($token) {
-            global $conn;
-
-            $stmt = $conn->prepare("SELECT token, token_expiration FROM tokens WHERE token = :token;");
-            $stmt->bindParam(':token', $token);
-            $stmt->execute();
-            $result = $stmt->fetchAll(); 
-
-            if (count($result) > 0)
-                return true;
-            else 
-                return false;
-        }
-
-        public static function checkTokenExpiration($token) {
-            global $conn;
-
-            $stmt = $conn->prepare("SELECT token_expiration FROM tokens WHERE token = :token;");
-            $stmt->bindParam(':token', $token);
-            $stmt->execute();
-            $result = $stmt->fetch();
-
-            if (!$result)
-                return true;
-            
-            return false;
-        }*/
-
         public static function logout($token) {
             global $conn; global $timer;
 

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
     <head>
-        <meta charset="UTF-8">
         <title>Login - CIM</title>
+        <meta charset="UTF-8">
         <link rel="stylesheet" href="css/index.css">
         <script src="js/header.js"></script>
         <script src="js/libraries/sweetalert.js"></script>
@@ -10,7 +10,7 @@
     </head>
     <body>
         <div class="formulario">
-            <img src="imgs/button_hover.png" width="50%">
+            <img src="imgs/logo.png" width="50%">
             <form id="loginForm" method="POST" onsubmit="return confirmLogin()">
                 <h3>Inicio de sesión - CIM</h3>
                 <div class="form-control">
@@ -37,7 +37,7 @@
                 var password = document.forms['loginForm']['password'].value;
 
                 var xhr = new XMLHttpRequest();
-                xhr.open("POST", "login.php", true);
+                xhr.open("POST", "log.php?function=login", true);
                 xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                 xhr.onreadystatechange = function() {
                     if (xhr.readyState === 4) {

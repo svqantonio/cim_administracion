@@ -1,6 +1,6 @@
 function rellenarSelect_seleccionado(tabla, selectRellenar, idSeleccionado) {
     var xhr = new XMLHttpRequest();
-    xhr.open("POST", "manage_tables.php?table=" + tabla, true);
+    xhr.open("GET", "tables.php?table=" + tabla, true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) {
