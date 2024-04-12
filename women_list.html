@@ -16,7 +16,14 @@
 
             <!-- Buscador y filtrar -->
             <div id="buscar-filtrar">
-                <input type="text" class="form-control" id="busqueda" placeholder="Introduce parámetros sobre alguno de los campos de la tabla para buscar"/>
+                <select class="form-select" id="tipoBusqueda" onchange="tipoBusqueda(this.value)">
+                    <option selected value="1">Nombre y apellidos</option>
+                    <option value="2">Dni</option>
+                    <option value="3">Fecha de nacimiento</option>
+                    <option value="4">Dirección</option>
+                    <option value="5">Número de expediente</option>
+                </select>
+                <input type="text" class="form-control" id="busqueda" placeholder="Introduce el nombre o apellidos por el que quieres buscar" />
                 <button class="btn btn-outline-success" id="buscar">Buscar</button>
                 <select class="form-select" id="filtrar" onchange="filtrado(this.value)">
                     <option disabled selected value="0">Opción de filtrado</option>
@@ -30,13 +37,38 @@
             </div>
 
             <script>
+                //Evento en el que cuando se pulsa el botón de buscar, se manda al women_search lo que se busca
                 document.getElementById('buscar').addEventListener('click', function() {
                     const search = document.getElementById('busqueda').value;
-                    window.location.href = 'women_search.html?search=' + search + "&page=0";
+                    const tipoBusqueda = document.getElementById('tipoBusqueda').value;
+                    //console.log("Búsqueda: ", search);
+                    window.location.href = 'women_search.html?search=' + search + "&page=0" + "&tipoBusqueda=" + tipoBusqueda;
                 });
 
-                function filtrado(valor) {
-                    console.log(valor);
+                function tipoBusqueda(tipoBusqueda) {
+                    var busquedaInput = document.getElementById('busqueda');
+
+                    if (tipoBusqueda == 2) {
+                        busquedaInput.type = 'tel';
+                        busquedaInput.placeholder = 'Introduce el DNI';
+                        busquedaInput.maxLength = 9;
+                        busquedaInput.pattern = '\\d{8}[a-zA-Z]';
+                        busquedaInput.title = 'Por favor, introduce un DNI válido (8 números seguidos de una letra)';
+                    } else if (tipoBusqueda == 3) {
+                        busquedaInput.type = 'Date';
+                        console.log("Hola");
+                    } else if (tipoBusqueda == 5) {
+                        busquedaInput.type = 'text';
+                        busquedaInput.placeholder = 'Introduce número de expediente (ej. 55/55)';
+                        busquedaInput.pattern = '\\d{2}/\\d{2}';
+                        busquedaInput.title = 'Por favor, introduce la fecha en formato DD/MM';
+                        // Añadir un evento de escucha para rechazar letras
+                        busquedaInput.addEventListener('input', function(event) {
+                            // Reemplazar cualquier carácter no numérico con una cadena vacía
+                            this.value = this.value.replace(/[^0-9/]/g, '');
+                        });
+                    }
+                    console.log(tipoBusqueda);
                 }
             </script>
             

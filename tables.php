@@ -20,7 +20,6 @@
                 if ($function === 'count') {
                     $response = TableHelper::countGetWomenTableDates($query); 
                 } else {
-                    //$response = [ "page" => $page];
                     $response = TableHelper::getWomenTableDates($query, $page, $filter);
                 }
             }

@@ -1,39 +1,50 @@
 document.addEventListener('DOMContentLoaded', function() {
-    var fileName = window.location.href.split("/").pop().split("?")[0];
+    var fileName = window.location.href.split("/")[5];
     var parameters = new URLSearchParams(window.location.search);
+    var filter = parameters.get('filter') ? parameters.get('filter') : null;
+    console.log("Filtro: ", filter);
     var page = parameters.get('page') ? parameters.get('page') : null;
     localStorage.setItem('page', page);
-
+    localStorage.setItem('fileName', fileName);
+    
     var h3_pag = document.getElementById('h3_pag');
     h3_pag.textContent += Number(page) + 1;
-
-    if (fileName === 'women_list.html') {
-        h3_pag.textContent += " del listado total de usuarias";
+    
+    if (fileName.includes('women_list.html')) {
+        if (filter != null)
+            h3_pag.textContent += " del listado total de usuarias filtradas por " + filter;
+        else 
+            h3_pag.textContent += " del listado total de usuarias";
+        
         cargarDatosTabla(page);
-        cargarBotones_totales(null, null);
-    } else if (fileName === 'women_search.html') {
-        h3_pag.textContent += " de la búsqueda: " + parameters.get('search'); 
-        console.log("Filename: ", fileName);
+        cargarBotones_totales(null, null, null);
+    } else if (fileName.includes('women_search.html')) {
         var search = parameters.get('search');
+        var tipoBusqueda = parameters.get('tipoBusqueda');
+        console.log("Búsqueda: ", search);
 
-        if (search.length != 0) {
-            if (/^[a-zA-Z]+$/.test(search)) { // Comprobar si el valor contiene solo letras para saber si has buscado un nombre o apellido
+        if (tipoBusqueda != 0) {
+            if (tipoBusqueda == 1) { // Comprobar si el valor contiene solo letras para saber si has buscado un nombre o apellido
                 query = "WHERE nombre LIKE '" + search + "' OR apellidos LIKE '" + search + "'";
-                console.log("El valor contiene solo letras.");
-            } else if (/^[0-9a-zA-Z]{9}$/.test(search)) { // Comprobar si el valor contiene solo números y letras y tiene una longitud de 9 caracteres para saber si has buscado un DNI
-                query = "WHERE dni LIKE '" + search + "'";
-                console.log("El valor contiene números y letras y tiene una longitud de 9 caracteres.");
-            } else if (/(\/{2}|-{2})\d{8}$/.test(search) || /(\/{2}|-{2})\d{6}$/.test(search)) {  // Comprobar si el valor contiene el carácter "/" o el carácter "-" para saber si has buscado una fecha
-                query = "WHERE fecha_nac LIKE '" + search + "'";
-                console.log("El valor contiene el carácter '/' o el carácter '-'.");
-            } else { // Si no se cumple ninguna de las condiciones anteriores significa que estás buscando direcciones
-                query = "WHERE direccion LIKE '" + search + "'";
-                console.log("El valor no cumple con ninguna condición especificada.");
+            } else if (tipoBusqueda == 2) { // Comprobar si el valor contiene solo números y letras y tiene una longitud de 9 caracteres para saber si has buscado un DNI
+                query = "WHERE CAST(AES_DECRYPT(dni, 'xyz123') AS CHAR) = '" + search + "'";
+            } else if (tipoBusqueda == 3) {  // Comprobar si el valor contiene el carácter "/" o el carácter "-" para saber si has buscado una fecha
+                query = "WHERE CAST(AES_DECRYPT(fecha_nac, 'xyz123') AS CHAR) = '" + search + "'";
+            } else if (tipoBusqueda == 4){ // Estás buscando direcciones
+                query = "WHERE CAST(AES_DECRYPT(direccion, 'xyz123') AS CHAR) = '" + search + "'";
+            } else if (tipoBusqueda == 5) { // Estás buscando expedientes
+                query = "WHERE CAST(AES_DECRYPT(expediente, 'xyz123') AS CHAR) = '" + search + "'";
             }
             console.log("Query: ", query);
 
             var xhr = new XMLHttpRequest();
-            xhr.open("GET", "tables.php?table=mujeres&query=" + query + "&page=" + page, true);
+            if (filter != null)  {
+                h3_pag.textContent += " de la búsqueda: " + search + " (filtradas por " + filter + ")";
+                xhr.open("GET", "tables.php?table=mujeres&query=" + query + "&page=" + page + "&filter=" + filter, true);
+            } else {
+                h3_pag.textContent += " de la búsqueda: " + search;  
+                xhr.open("GET", "tables.php?table=mujeres&query=" + query + "&page=" + page, true);
+            }
             xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === XMLHttpRequest.DONE) {
@@ -41,8 +52,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         //var response = xhr.responseText;
                         var response = JSON.parse(xhr.responseText);
                         console.log("Respuesta: ", response);
-                        introducirDatosTabla(response);
-                        cargarBotones_totales(search, query);
+
+                        if (response.length != 0) {
+                            introducirDatosTabla(response);
+                            cargarBotones_totales(search, query, tipoBusqueda);
+                        } else {
+                            Swal.fire({
+                                title: "No se han encontrado resultados!",
+                                icon: "error",
+                                timer: 1500
+                            });
+                            setTimeout(function() {
+                                window.location.href = 'women_list.html?table=mujeres&page=0';
+                            }, 1500);
+                        }
                     }
                 }
             };
@@ -57,10 +80,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.href = 'women_list.html?table=mujeres&page=0';
             }, 1500);
         }
-
-        window.addEventListener('beforeunload', function() {
-            
-        });
     }
 });
 
@@ -132,8 +151,8 @@ function introducirDatosTabla(response) {
                     xhr.open("POST", "tables.php?table=mujeres" + "&id=" + response.id + "&function=deleteValues", true);
                     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                     xhr.onreadystatechange = function() {
-                        if (t_xhr.readyState === 4) {
-                            if (t_xhr.status === 200) {
+                        if (xhr.readyState === 4) {
+                            if (xhr.status === 200) {
                                 var response = JSON.parse(xhr.responseText);
                                 Swal.fire({
                                     position: "center",
@@ -142,7 +161,7 @@ function introducirDatosTabla(response) {
                                     timer: response.timer
                                 });
                                 setTimeout(function() {
-                                    location.reload(true);
+                                    window.location.href = 'women_list.html?table=mujeres&page=0';
                                 }, response.timer);
                             }
                         }
@@ -159,11 +178,12 @@ function introducirDatosTabla(response) {
     });
 }
 
-function cargarBotones_totales(search, query) {
+function cargarBotones_totales(search, query, tipoBusqueda) {
     //Aqui completamos la consulta de php comprobando que tipo de campo ha rellenado el usuario
     //var search = document.getElementById('busqueda');
     console.log("Valor de la búsqueda: ", search);
     console.log("Valor de la query: ", query);
+    console.log("Valor del tipo de búsqueda: ", tipoBusqueda);
 
     //Aqui antes de hacer la peticion de los datos hacer una peticion del count
     var xhr = new XMLHttpRequest();
@@ -196,7 +216,7 @@ function cargarBotones_totales(search, query) {
                     }
                     button.addEventListener('click', function() {
                         //console.log("Botón que estoy tocando: ", index);
-                        window.location.href = 'women_search.html?search=' + search + '&page=' + index;
+                        window.location.href = 'women_search.html?search=' + search + '&page=' + index + '&tipoBusqueda=' + tipoBusqueda;
                     });
                     div_paginacion.appendChild(button);
                 })(i);
@@ -205,3 +225,37 @@ function cargarBotones_totales(search, query) {
     }
     xhr.send();
 }
+
+function tipoFiltro(numFilter) {
+    var filter;
+    if (numFilter == 1) 
+        filter = 'nombre';
+    else if (numFilter == 2)
+        filter = 'apellidos';
+    else if (numFilter == 3)
+        filter = 'dni';
+    else if (numFilter == 4)
+        filter = 'fecha_nac';
+    else if (numFilter == 5)
+        filter = 'direccion';
+    else if (numFilter == 6)
+        filter = 'expediente';
+
+    var fileName = localStorage.getItem('fileName');
+    var parameters = new URLSearchParams(window.location.search);
+    var page = parameters.get('page');
+
+    if (fileName.includes('women_list.html')) {
+        var table = parameters.get('table');
+        window.location.href = 'women_list.html?table=' + table + '&page=' + page + '&filter=' + filter;
+    } else if (fileName.includes('women_search.html')) {
+        var search = parameters.get('search');
+        var tipoBusqueda = parameters.get('tipoBusqueda');
+        window.location.href = 'women_search.html?search=' + search + '&page=' + page + '&tipoBusqueda=' + tipoBusqueda + '&filter=' + filter;
+    }
+}
+/*if (fileName.includes('women_list.html')) {
+    window.location.href = 'women_list.html?table=mujeres&page=' + page + "&filter=" + filter;
+} else if (fileName.includes('women_search.html')) {
+    window.location.href = 'women_search.html?search=' + search + '&page=' + page + "tipoBusqueda=" + tipoBusqueda + "&filter=" + filter;
+}*/

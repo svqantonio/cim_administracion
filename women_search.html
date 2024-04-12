@@ -15,7 +15,7 @@
 
             <!-- Buscador y filtrar -->
             <div id="buscar-filtrar">
-                <select class="form-select" id="filtrar" onchange="filtrado(this.value)">
+                <select class="form-select" id="filtrar" onchange="tipoFiltro(this.value)">
                     <option disabled selected value="0">Opción de filtrado</option>
                     <option value="1">Nombre</option>
                     <option value="2">Apellidos</option>
@@ -25,12 +25,6 @@
                     <option value="6">Número de expediente</option>
                 </select>
             </div>
-
-            <script>
-                function filtrado(valor) {
-                    console.log(valor);
-                }
-            </script>
             
             <table id="women_table" class="table table-hover table-success" style="border: 1px solid black">
                 <thead>
