@@ -1,102 +1,94 @@
-document.addEventListener('DOMContentLoaded', function() {
-    var fileName = window.location.href.split("/")[5];
-    var parameters = new URLSearchParams(window.location.search);
+document.addEventListener('DOMContentLoaded', function() { //Con esta función cargamos los datos de las paginas women_list y women_search segun el fileName sea
+    var fileName = window.location.href.split("/")[5]; //Coge el nombre del archivo actual
+    var parameters = new URLSearchParams(window.location.search); //Coge los parametros de la URL a partir de aqui a 3 lineas abajo
     var filter = parameters.get('filter') ? parameters.get('filter') : null;
-    console.log("Filtro: ", filter);
     var page = parameters.get('page') ? parameters.get('page') : null;
+    var search = parameters.get('search') ? parameters.get('search') : null;
+    var tipoBusqueda = parameters.get('tipoBusqueda') ? parameters.get('tipoBusqueda') : null;
     localStorage.setItem('page', page);
     localStorage.setItem('fileName', fileName);
     
     var h3_pag = document.getElementById('h3_pag');
-    h3_pag.textContent += Number(page) + 1;
+    h3_pag.textContent += Number(page) + 1; //Da igual en el archivo en el que esté, pone el número de la página actual
     
-    if (fileName.includes('women_list.html')) {
-        if (filter != null)
-            h3_pag.textContent += " del listado total de usuarias filtradas por " + filter;
-        else 
-            h3_pag.textContent += " del listado total de usuarias";
+    if (fileName.includes('women_list.html')) { //Si estamos dentro de la lista total de las mujeres
+        if (filter != null) //Si hay filtro, lo añade al h3
+            h3_pag.textContent += " del listado total de usuarias. (Filtradas por " + filter + ")";
+        else    
+            h3_pag.textContent += " del listado total de usuarias."; 
         
-        cargarDatosTabla(page);
-        cargarBotones_totales(null, null, null);
-    } else if (fileName.includes('women_search.html')) {
-        var search = parameters.get('search');
-        var tipoBusqueda = parameters.get('tipoBusqueda');
-        console.log("Búsqueda: ", search);
-
-        if (tipoBusqueda != 0) {
-            if (tipoBusqueda == 1) { // Comprobar si el valor contiene solo letras para saber si has buscado un nombre o apellido
-                query = "WHERE nombre LIKE '" + search + "' OR apellidos LIKE '" + search + "'";
-            } else if (tipoBusqueda == 2) { // Comprobar si el valor contiene solo números y letras y tiene una longitud de 9 caracteres para saber si has buscado un DNI
-                query = "WHERE CAST(AES_DECRYPT(dni, 'xyz123') AS CHAR) = '" + search + "'";
-            } else if (tipoBusqueda == 3) {  // Comprobar si el valor contiene el carácter "/" o el carácter "-" para saber si has buscado una fecha
-                query = "WHERE CAST(AES_DECRYPT(fecha_nac, 'xyz123') AS CHAR) = '" + search + "'";
-            } else if (tipoBusqueda == 4){ // Estás buscando direcciones
-                query = "WHERE CAST(AES_DECRYPT(direccion, 'xyz123') AS CHAR) = '" + search + "'";
-            } else if (tipoBusqueda == 5) { // Estás buscando expedientes
-                query = "WHERE CAST(AES_DECRYPT(expediente, 'xyz123') AS CHAR) = '" + search + "'";
-            }
-            console.log("Query: ", query);
-
-            var xhr = new XMLHttpRequest();
-            if (filter != null)  {
-                h3_pag.textContent += " de la búsqueda: " + search + " (filtradas por " + filter + ")";
-                xhr.open("GET", "tables.php?table=mujeres&query=" + query + "&page=" + page + "&filter=" + filter, true);
-            } else {
-                h3_pag.textContent += " de la búsqueda: " + search;  
-                xhr.open("GET", "tables.php?table=mujeres&query=" + query + "&page=" + page, true);
-            }
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=utf-8");
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === XMLHttpRequest.DONE) {
-                    if (xhr.status === 200) {
-                        //var response = xhr.responseText;
-                        var response = JSON.parse(xhr.responseText);
-                        console.log("Respuesta: ", response);
-
-                        if (response.length != 0) {
-                            introducirDatosTabla(response);
-                            cargarBotones_totales(search, query, tipoBusqueda);
-                        } else {
-                            Swal.fire({
-                                title: "No se han encontrado resultados!",
-                                icon: "error",
-                                timer: 1500
-                            });
-                            setTimeout(function() {
-                                window.location.href = 'women_list.html?table=mujeres&page=0';
-                            }, 1500);
-                        }
-                    }
-                }
-            };
-            xhr.send();
-        } else {
-            Swal.fire({
-                title: "No has buscado nada!",
-                icon: "error",
-                timer: 1500
-            });
-            setTimeout(function() {
-                window.location.href = 'women_list.html?table=mujeres&page=0';
-            }, 1500);
+        cargarDatosTabla(fileName, page, null, null); //Carga los datos de la tabla según la página donde está
+        cargarBotones_totales(null, null, null); //Carga los botones de paginación
+    } else if (fileName.includes('women_search.html')) { //Si estamos dentro de la página con la que buscamos usuarias
+        if (filter == null)
+            h3_pag.textContent += ' de la búsqueda: ' + search;
+        else 
+            h3_pag.textContent += ' de la búsqueda: ' + search + ' (Filtrado por ' + filter + ')';
+        
+        if (tipoBusqueda == 1) { //Predeterminadamente si no selecciona otro tipo de búsqueda, se busca por nombre
+            query = "WHERE nombre LIKE '%" + search + "%' OR apellidos LIKE '%" + search + "%'";
+        } else if (tipoBusqueda == 2) { // Estás buscando DNI
+            query = "WHERE CAST(AES_DECRYPT(dni, 'xyz123') AS CHAR) = '%" + search + "%'";
+        } else if (tipoBusqueda == 3) {  // Estás buscando fechas de nacimiento
+            query = "WHERE CAST(AES_DECRYPT(fecha_nac, 'xyz123') AS CHAR) = '%" + search + "%'";
+        } else if (tipoBusqueda == 4){ // Estás buscando direcciones
+            query = "WHERE CAST(AES_DECRYPT(direccion, 'xyz123') AS CHAR) = '%" + search + "%'";
+        } else if (tipoBusqueda == 5) { // Estás buscando expedientes
+            query = "WHERE CAST(AES_DECRYPT(expediente, 'xyz123') AS CHAR) = '%" + search + "%'";
         }
+
+        cargarDatosTabla(fileName, page, query, filter); //Carga los datos de la tabla según la página donde está
+        cargarBotones_totales(search, query, tipoBusqueda); //Carga los botones de paginación
     }
 });
 
-function cargarDatosTabla(page) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'tables.php?table=mujeres&page=' + page, true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8');
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-            if (xhr.status === 200) {
-                var response = JSON.parse(xhr.responseText);
-                console.log("Usuarias de la página "  + localStorage.getItem('page') + ": (La página aquí está restada 1, no preocuparse por eso)", response);
-                introducirDatosTabla(response);
-            }
+function cargarDatosTabla(fileName, page, query, filter) { //Funcion que carga los datos de las usuarias en base a ciertos parametros y al archivo donde quiere cargar los datos
+    $middleware = 'tables.php?table=mujeres&page=' + page; //Variable que hace mas liviano la ruta de la petición
+
+    if (fileName.includes('women_list.html')) { //Si estamos en la lista total de las mujeres hacemos una peticion en la que antes comprobamos si hay filtro o no y metemos los datos en la tabla
+        var xhr = new XMLHttpRequest();
+        if (filter != null) {
+            xhr.open('GET', $middleware + '&filter=' + filter, true);
+        } else {
+            xhr.open('GET', $middleware, true);
         }
-    };
-    xhr.send();
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    introducirDatosTabla(response);
+                }
+            }
+        };
+        xhr.send();
+    } else if (fileName.includes('women_search.html')) { //Si estamos en la página de búsqueda de mujeres hacemos una petición en la que antes comprobamos si hay filtro o no y metemos los datos en la tabla y buscamos por el campo que haya seleccionado el usuario y en caso de no haber nada, mensajito de error y te devuelve a la lista completa de las mujeres
+        var xhr = new XMLHttpRequest();
+        if (filter != null) {
+            xhr.open('GET', $middleware + '&query=' + query + '&filter=' + filter, true);
+        } else {
+            xhr.open('GET', $middleware + '&query=' + query, true);
+        }
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.length != 0) {
+                        introducirDatosTabla(response);
+                    } else {
+                        Swal.fire({
+                            title: "No se ha encontrado ninguna usuaria con esos datos",
+                            icon: "error",
+                            timer: 1500
+                        });
+                        setTimeout(function() {
+                            window.location.href = 'women_list.html?table=mujeres&page=0';
+                        }, 1500);
+                    }
+                }
+            }
+        };
+        xhr.send();
+    }
 }
 
 function introducirDatosTabla(response) {
@@ -181,26 +173,19 @@ function introducirDatosTabla(response) {
 function cargarBotones_totales(search, query, tipoBusqueda) {
     //Aqui completamos la consulta de php comprobando que tipo de campo ha rellenado el usuario
     //var search = document.getElementById('busqueda');
-    console.log("Valor de la búsqueda: ", search);
-    console.log("Valor de la query: ", query);
-    console.log("Valor del tipo de búsqueda: ", tipoBusqueda);
 
     //Aqui antes de hacer la peticion de los datos hacer una peticion del count
     var xhr = new XMLHttpRequest();
     if (search !== null) {
         xhr.open("GET", "tables.php?table=mujeres&function=count&query=" + query, true);
-        console.log("Me meto dentro del count con la consulta");
     } else {
         xhr.open("GET", "tables.php?table=mujeres&function=count", true);
-        console.log("Me meto dentro del console.log sin la consulta");
     } 
     xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=utf-8');
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) {
             var response = JSON.parse(xhr.responseText);
-            //console.log("Número de resultados a la búsqueda: ", response);
             var paginas = Math.ceil(response.count / 50);
-            //console.log("Número de páginas: ", paginas);
             var div_paginacion = document.getElementById('paginacion');
 
             for (var i = 0; i < paginas; i++) {
@@ -215,8 +200,10 @@ function cargarBotones_totales(search, query, tipoBusqueda) {
                         button.classList = 'btn btn-outline-success';
                     }
                     button.addEventListener('click', function() {
-                        //console.log("Botón que estoy tocando: ", index);
-                        window.location.href = 'women_search.html?search=' + search + '&page=' + index + '&tipoBusqueda=' + tipoBusqueda;
+                        if (localStorage.getItem('fileName').includes('women_list.html')) 
+                            window.location.href = 'women_list.html?table=mujeres&page=' + index;
+                        else if (localStorage.getItem('fileName').includes('women_search.html'))
+                            window.location.href = 'women_search.html?search=' + search + '&page=' + index + '&tipoBusqueda=' + tipoBusqueda;   
                     });
                     div_paginacion.appendChild(button);
                 })(i);
@@ -226,8 +213,8 @@ function cargarBotones_totales(search, query, tipoBusqueda) {
     xhr.send();
 }
 
-function tipoFiltro(numFilter) {
-    var filter;
+function tipoFiltro(numFilter) { //Función que se ejecuta cuando se cambia el select de los filtros
+    var filter; //Variable para indicar al php porque metodo queremos filtrar, esto lo inyectaremos en la consulta que se ejecuta en el servidor
     if (numFilter == 1) 
         filter = 'nombre';
     else if (numFilter == 2)
@@ -241,21 +228,14 @@ function tipoFiltro(numFilter) {
     else if (numFilter == 6)
         filter = 'expediente';
 
-    var fileName = localStorage.getItem('fileName');
-    var parameters = new URLSearchParams(window.location.search);
-    var page = parameters.get('page');
+    var parameters = new URLSearchParams(window.location.search); //Recoge los parametros de la URL
+    var page = parameters.get('page'); //Ya que este parametro está en ambos archivos
 
-    if (fileName.includes('women_list.html')) {
-        var table = parameters.get('table');
-        window.location.href = 'women_list.html?table=' + table + '&page=' + page + '&filter=' + filter;
-    } else if (fileName.includes('women_search.html')) {
+    if (localStorage.getItem('fileName').includes('women_list.html')) { //Si el nombre del archivo es women_list
+        window.location.href = 'women_list.html?table=mujeres' + '&page=' + page + '&filter=' + filter;
+    } else if (localStorage.getItem('fileName').includes('women_search.html')) {
         var search = parameters.get('search');
         var tipoBusqueda = parameters.get('tipoBusqueda');
         window.location.href = 'women_search.html?search=' + search + '&page=' + page + '&tipoBusqueda=' + tipoBusqueda + '&filter=' + filter;
     }
 }
-/*if (fileName.includes('women_list.html')) {
-    window.location.href = 'women_list.html?table=mujeres&page=' + page + "&filter=" + filter;
-} else if (fileName.includes('women_search.html')) {
-    window.location.href = 'women_search.html?search=' + search + '&page=' + page + "tipoBusqueda=" + tipoBusqueda + "&filter=" + filter;
-}*/
