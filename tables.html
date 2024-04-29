@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Cambios en tablas - CIM</title>
+        <link rel="stylesheet" href="css/tables.css">
+        <script src="js/header.js"></script>
+        <script src="js/libraries/sweetalert.js"></script>
+        <script src="js/capitalize.js"></script>
+        <script src="js/log.js"></script>
+        <script src="js/tables.js"></script>
+    </head>
+    <body>
+        
+        <div class="container">
+            <button class="btn btn-link" onclick="window.location.href = 'main.html'"><- Volver</button>
+            <table id="tabla_bbdd" class="table table-success" border="1px solid black">
+                <thead>
+                    <tr id="thead_tr_sinCompletar">
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <button class="btn btn-link" onclick="form_nuevoValor()">Nuevo valor</button>
+            <form id="bothForms" onsubmit="return validateForm(document.getElementById('id_bothForms').value, document.getElementById('valor_bothForms').value)" style="display: none;">
+                <h3 id="h3_form">Formulario de edición</h3>
+                <div class="form-group" id="div_id">
+                    <label class="form-label">Id</label>
+                    <input type="number" class="form-control" id="id_bothForms" required name="id" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" id="value_bothForms">Valor</label>
+                    <input type="text" class="form-control" id="valor_bothForms" required name="valor"/>
+                </div>
+                <button type="submit" id="btnSubmit" class="btn btn-primary">Añadir</button>
+                <button type="button" id="btnBack" class="btn btn-secondary" onclick="bothForms.style.display = 'none';">Volver</button>
+            </form>
+        </div>
+    </body>
+</html>

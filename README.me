@@ -36,8 +36,17 @@ TERMINAR DE EDITAR LA FUNCION DE EDITAR LAS MUJERES DENTRO DE data_tables.php
 #Paginacion hecha
 [] Cambiar el formato en el que se añade la fecha a aaaa-mm-dd 
 [] Poner estilos changes.html en el tbody de la tabla
-[] Terminar el filtrado
-[] Terminar de cargarme el login.php, logout.php y manage_log.php, estoy agrupandolo todo en log.php, por cierto, no es necesario cuando hagas login y logout cargarte tokens ya que lo hago cada vez que entro a un archivo, es redundar demasiado a mi parecer, y donde tengo los console.logs y tal es en el js, aunque sé que no es buena práctica hacerlo en js y no en php.
+[x] Terminar el filtrado
+[x] Terminar de cargarme el login.php, logout.php y manage_log.php, estoy agrupandolo todo en log.php, por cierto, no es necesario cuando hagas login y logout cargarte tokens ya que lo hago cada vez que entro a un archivo, es redundar demasiado a mi parecer, y donde tengo los console.logs y tal es en el js, aunque sé que no es buena práctica hacerlo en js y no en php.
 
 
 NOTA: FUNCIONA DE MOMENTO TODO CORRECTAMENTE, SOLO FALTA APLICAR EL FILTRADO
+
+#Todo hecho, falta adaptarlo al cim que las redirecciones van medio raras.
+[] Comprobar todos los casos para corroborar que las redirecciones funcionen correctamente
+[x] Meterle añadir a changes.html
+[] Poder administrar también la tabla users
+[] Mejorar el codigo de log_verification que a veces te metes en la pagina de login y te saltan mensajes que no tendrian porque salir
+[] Hacer dentro de la base de datos del cim un disparador que cada dia cree una copia de seguridad de la tabla mujeres y consultas y se rellene una tabla que se llame mujeres_backup y consultas_backup que haga eso.
+
+IMPORTANTE: para poder administrar la tabla users con las funciones que tengo, a la funcion introducirDatos tengo que pasarle un json con los campos de la tabla ya que si es diferente de las que tienen campos id y valor pues a tomar por culo, no funciona.

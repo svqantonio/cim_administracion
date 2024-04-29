@@ -10,6 +10,7 @@
     $filter = isset($_GET['filter']) ? $_GET['filter'] : null;
     $function = isset($_GET['function']) ? $_GET['function'] : null;
     $id = isset($_GET['id']) ? $_GET['id'] : null;
+    $value = isset($_GET['value']) ? $_GET['value'] : null;
         
     //Método GET para las peticiones en las que solamente se cogen datos
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -24,8 +25,14 @@
                 }
             }
         } else {
-            //Cuando la tabla NO es mujeres 
-            $response = TableHelper::getTableDates($table);
+            if ($function == 'pickFields') {
+                $response = TableHelper::getFields($table);
+            } else if ($function == 'pickTables') {
+                $response = TableHelper::getTables();
+            } else {
+                //Cuando la tabla NO es mujeres 
+                $response = TableHelper::getData($table);
+            }
         }
     //Método POST para las peticiones donde se modifican datos
     } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -36,7 +43,11 @@
                 $data = json_decode(file_get_contents('php://input'), true);
                 $response = TableHelper::editWoman($id, $data);
             } else {
-                $response = TableHelper::editValues($table, $id, $value);
+                if ($id != 1) {
+                    $response = TableHelper::editValues($table, $id, $value);
+                } else {
+                    $response = TableHelper::newValue($table, $value);
+                }
             }
         }
     }

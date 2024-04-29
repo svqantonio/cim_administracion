@@ -2,26 +2,47 @@
 
     class TableHelper {
 
-        public static function getTableDates($table) {
-            global $conn;
+        public static function getTables() {
+            global $conn; global $dbname;
 
-            $stmt = $conn->prepare("SELECT id, CAST(AES_DECRYPT(valor, 'xyz123') AS CHAR) AS valor FROM $table ORDER BY id;");
-            $stmt->execute();
+            $stmt = $conn->prepare("SELECT table_name FROM information_schema.tables WHERE table_schema = :dbname AND table_type = 'BASE TABLE';");
+            $stmt->execute(array(':dbname' => $dbname));
             $result = $stmt -> fetchAll(PDO::FETCH_ASSOC);
-            
             return $result;
         }
 
-        /*public static function getWomenTableDates() {
-            global $conn; 
-
-            $stmt = $conn->prepare("SELECT id, nombre, apellidos, CAST(AES_DECRYPT(dni,'xyz123') AS CHAR) AS dni, CAST(AES_DECRYPT(fecha_nac,'xyz123') AS CHAR) AS fecha_nac, CAST(AES_DECRYPT(direccion,'xyz123') AS CHAR) AS direccion FROM mujeres ORDER BY nombre;");
+        public static function getData($table) {
+            global $conn;
+            $fieldsResult = self::getFields($table); // Obtener los nombres de los campos de la tabla
+            $fields = array_column($fieldsResult, 'COLUMN_NAME'); // Obtener solo los nombres de los campos de $fieldsResult
+        
+            //Aqui contruimos la consulta, mas adelante pondremos separacion por tipo de tablas.
+            $selectPart = ''; 
+            foreach ($fields as $field) {
+                if ($field !== 'id' && $field !== 'username' && $field !== 'password') { // Para los campos que no son id, username o password, los pedimos desencriptados
+                    $selectPart .= "CAST(AES_DECRYPT($field, 'xyz123') AS CHAR) AS $field, ";
+                } else {
+                    $selectPart .= "$field, ";
+                }
+            }
+            $selectPart = rtrim($selectPart, ', '); // Eliminamos la coma final
+        
+            $query = "SELECT $selectPart FROM $table"; // Construir la consulta
+            $stmt = $conn->prepare($query);
             $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $result;
+        }
+        
+        public static function getFields($table) {
+            global $conn; global $dbname;
+
+            $stmt = $conn->prepare("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = :dbname AND TABLE_NAME = :table");
+            $stmt->execute(array(':dbname' => $dbname, ':table' => $table));
             $result = $stmt -> fetchAll(PDO::FETCH_ASSOC); 
             return $result;
-        }*/
+        }
 
-        //Funcion del archivo prueba.php y prueba.js
         public static function getWomenTableDates($query, $page, $filter) {
             global $conn;
             $offset = $page * 50;
@@ -122,6 +143,27 @@
             }
 
             return $response;
+        }
+
+        public static function newValue($table, $value) {
+            global $conn; global $timer;
+
+            try {
+                $stmt = $conn->prepare("INSERT INTO $table SET valor = AES_ENCRYPT(:value, 'xyz123');");
+                $stmt->bindParam(':value', $value);
+                if ($stmt->execute()) 
+                    return [
+                        "status" => "success",
+                        "message" => "Valor añadido correctamente!",
+                        "timer" => $timer
+                    ];
+            } catch(Exception $e) {
+                return [
+                    "status" => "error",
+                    "message" => $e->getMessage(),
+                    "timer" => $timer
+                ];
+            } 
         }
 
         public static function editWoman($id, $data) {
